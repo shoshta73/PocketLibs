@@ -16,3 +16,43 @@ trim_trailing_whitespace = false
 
 [*.h]
 indent_size = 4
+
+[CMakeLists.txt]
+indent_size = 8
+tab_width = 8
+
+[*.cmake]
+indent_size = 8
+tab_width = 8
+
+[*.c]
+indent_size = 4
+tab_width = 4
+
+[*.h]
+indent_size = 4
+tab_width = 4
+
+[*.cpp]
+indent_size = 4
+tab_width = 4
+
+[*.cxx]
+indent_size = 4
+tab_width = 4
+
+[*.cc]
+indent_size = 4
+tab_width = 4
+
+[*.hpp]
+indent_size = 4
+tab_width = 4
+
+[*.hxx]
+indent_size = 4
+tab_width = 4
+
+[*.hh]
+indent_size = 4
+tab_width = 4
