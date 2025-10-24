@@ -1,0 +1,19 @@
+ul li:first-child input[type="checkbox"],
+ul li>input[type="checkbox"]:first-child {
+  margin-left: -1.2em;
+}
+
+ul li>input[type="checkbox"]:first-child {
+  transform: translateY(1px);
+}
+
+ul li>input[type="checkbox"]:first-child::before,
+ul li>input[type="checkbox"]:first-child::marker,
+ul li:has(> input[type="checkbox"]:first-child)::marker {
+  content: "";
+  color: transparent;
+}
+
+ul li>input[type="checkbox"]:first-child {
+  list-style-type: none;
+}
