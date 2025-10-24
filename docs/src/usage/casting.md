@@ -22,6 +22,7 @@ Your codebase must have LLVM-style RTTI set up.
    target_compile_definitions(my_target PUBLIC CASTING_NAMESPACE=MyNamespace)
    ```
 
-3. If you are not already using LLVM-style RTTI, adapt your code to use it. If you're unsure how to do this, please refer to the [LLVM-style RTTI Guide](../guides/LLVM-style-RTTI.md).
+3. If you are not already using LLVM-style RTTI, adapt your code to use it.
+   If you're unsure how to do this, please refer to the [LLVM-style RTTI Guide](../guides/LLVM-style-RTTI.md).
 
 4. Include the header file where you need it.

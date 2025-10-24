@@ -34,6 +34,12 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-cargo-mdbook-
 
+      - name: Install graphviz
+        run: sudo apt-get update && sudo apt-get install -y graphviz
+
+      - name: build graphs
+        run: cd docs && bash ./build-graphs.sh
+
       - name: Install mdbook
         run: cargo install mdbook --version 0.4.52 --locked
 

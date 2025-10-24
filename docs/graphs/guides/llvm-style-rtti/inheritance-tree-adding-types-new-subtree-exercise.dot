@@ -1,0 +1,33 @@
+digraph "Inheritance Tree"
+{
+  bgcolor = "transparent"
+  edge [fontname="Geist Mono",fontsize=12,labelfontname="Geist Mono",labelfontsize=12]
+  node [fontname="Geist Mono",fontsize=12,shape=box,height=0.2,width=0.4]
+  rankdir=LR
+
+  Shape [id="Shape",label="Shape",height=0.2,width=0.4,color="gray40", fillcolor="grey60", style="filled", fontcolor="black",tooltip="Base class for all shapes."]
+
+  Parallelogram [id="Parallelogram",label="Parallelogram",height=0.2,width=0.4,color="gray40", fillcolor="grey60", style="filled", fontcolor="black",tooltip="Class representing a parallelogram."]
+  Rhombus [id="Rhombus",label="Rhombus",height=0.2,width=0.4,color="gray40", fillcolor="grey60", style="filled", fontcolor="black",tooltip="Class representing a rhombus."]
+  Rectangle [id="Rectangle",label="Rectangle",height=0.2,width=0.4,color="gray40", fillcolor="grey60", style="filled", fontcolor="black",tooltip="Class representing a rectangle."]
+  Square [id="Square",label="Square",height=0.2,width=0.4,color="gray40", fillcolor="grey60", style="filled", fontcolor="black",tooltip="Class representing a square."]
+
+  Ellipse [id="Ellipse",label="Ellipse",height=0.2,width=0.4,color="gray40", fillcolor="grey60", style="filled", fontcolor="black",tooltip="Class representing an ellipse."]
+
+  Triangle [id="Triangle",label="Triangle",height=0.2,width=0.4,color="gray40", fillcolor="grey60", style="filled", fontcolor="black",tooltip="Class representing a triangle."]
+  EquilateralTriangle [id="EquilateralTriangle",label="EquilateralTriangle",height=0.2,width=0.4,color="gray40", fillcolor="grey60", style="filled", fontcolor="black",tooltip="Class representing an equilateral triangle."]
+  IsoscelesTriangle [id="IsoscelesTriangle",label="IsoscelesTriangle",height=0.2,width=0.4,color="gray40", fillcolor="grey60", style="filled", fontcolor="black",tooltip="Class representing an isosceles triangle."]
+  ScaleneTriangle [id="ScaleneTriangle",label="ScaleneTriangle",height=0.2,width=0.4,color="gray40", fillcolor="grey60", style="filled", fontcolor="black",tooltip="Class representing a scalene triangle."]
+
+  Shape -> Parallelogram [id="Shape->Parallelogram",dir="back",color="green"]
+  Parallelogram -> Rhombus [id="Parallelogram->Rhombus",dir="back",color="green"]
+  Parallelogram -> Rectangle [id="Parallelogram->Rectangle",dir="back",color="green"]
+  Rectangle -> Square [id="Rectangle->Square",dir="back",color="green"]
+
+  Shape -> Ellipse [id="Shape->Ellipse",dir="back",color="green"]
+
+  Shape -> Triangle [id="Shape->Triangle",dir="back",color="green"]
+  Triangle -> EquilateralTriangle [id="Triangle->EquilateralTriangle",dir="back",color="green"]
+  Triangle -> IsoscelesTriangle [id="Triangle->IsoscelesTriangle",dir="back",color="green"]
+  Triangle -> ScaleneTriangle [id="Triangle->ScaleneTriangle",dir="back",color="green"]
+}

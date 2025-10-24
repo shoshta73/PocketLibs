@@ -90,7 +90,7 @@ This function dynamically casts the given value to the specified type.
 > [!WARNING]
 >
 > ```cpp
-> {{#include ../../../casting.h:330:336}}
+> {{#include ../../../casting.h:326:332}}
 > ```
 >
 > This `dyn_cast` overload will consume the owned pointer stored in `std::unique_ptr` if the cast is possible.
