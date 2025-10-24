@@ -38,20 +38,16 @@ namespace CASTING_NAMESPACE {
 
 namespace detail {
 
-template <typename T, typename From, typename = void>
-struct classof_callable : std::false_type {};
-
 template <typename T, typename From>
-struct classof_callable<
-    T, From,
-    std::void_t<std::enable_if_t<std::is_convertible_v<decltype(T::classof(std::declval<const From *>())), bool>>>>
-    : std::true_type {};
+concept ClassofCallable = requires(const From *p) {
+    { T::classof(p) } -> std::convertible_to<bool>;
+};
 
 template <typename To, typename From>
 auto isa_impl(const From &pVal) -> bool {
     if constexpr (std::is_base_of_v<To, From>) {
         return true;
-    } else if constexpr (classof_callable<To, From>::value) {
+    } else if constexpr (ClassofCallable<To, From>) {
         return To::classof(&pVal);
     } else {
         return false;
