@@ -23,12 +23,12 @@ This function checks if the given value is of any of the specified types.
 > Parameters:
 >
 > > ```cpp
-> > const From &pVal // (1)
-> > From *pVal // (2)
-> > const From *pVal // (3)
-> > std::unique_ptr<From> &pVal // (4)
-> > std::shared_ptr<From> &pVal // (5)
-> > const std::optional<From> &pVal // (6)
+> > const From &pVal
+> > From *pVal
+> > const From *pVal
+> > std::unique_ptr<From> &pVal
+> > std::shared_ptr<From> &pVal
+> > const std::optional<From> &pVal
 > > ```
 > >
 > > The value to check.
@@ -69,12 +69,12 @@ This function casts the given value to the specified type.
 > Parameters:
 >
 > > ```cpp
-> > const From &pVal // (1)
-> > From *pVal // (2)
-> > const From *pVal // (3)
-> > std::unique_ptr<From> &&pVal // (4)
-> > std::shared_ptr<From> &pVal // (5)
-> > const std::optional<From> &pVal // (6)
+> > const From &pVal
+> > From *pVal
+> > const From *pVal
+> > std::unique_ptr<From> &&pVal
+> > std::shared_ptr<From> &pVal
+> > const std::optional<From> &pVal
 > > ```
 > >
 > > The value to cast.
@@ -114,12 +114,12 @@ This function dynamically casts the given value to the specified type.
 > Parameters:
 >
 > > ```cpp
-> > const From &pVal // (1)
-> > From *pVal // (2)
-> > const From *pVal // (3)
-> > std::unique_ptr<From> &&pVal // (4)
-> > std::shared_ptr<From> &pVal // (5)
-> > const std::optional<From> &pVal // (6)
+> > const From &pVal
+> > From *pVal
+> > const From *pVal
+> > std::unique_ptr<From> &&pVal
+> > std::shared_ptr<From> &pVal
+> > const std::optional<From> &pVal
 > > ```
 > >
 > > The casted value or `nullptr` if the cast is not possible.
