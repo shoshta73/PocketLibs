@@ -479,3 +479,51 @@ in your header where you have defined the `Shape` class like so:
 
 #endif  // SHAPE_H
 ```
+
+Internal api of `isa` function boils down to something like this:
+
+```cpp
+auto isa<Rectangle>(Shape *shape) {return true;} // if value is of Rectangle type
+auto isa<Rectangle>(Shape *shape) {return false;} // if value is not of Rectangle type
+```
+
+It does that by first checking if shape is base any of base classes of
+`Rectangle` class, and if it is, it returns `true`. If it is not, it checks if
+if Rectangle has a `classof` method, and if it does, it calls it with the shape
+as a parameter, and if checks done by `classof` method returns pass it returns
+`true`, otherwise it returns `false`.
+
+## Using `isa` function
+
+Say you have function called `GetPoints` that returns a number of points based on
+the shape of the given shape.
+
+When compiling with `rtti` enabled, the following code will work:
+
+```cpp
+if (auto triangle = dynamic_cast<Triangle *>(shape)) {
+  return 3;
+} else if (auto rectangle = dynamic_cast<Rectangle *>(shape)) {
+  return 4;
+}
+```
+
+However, when compiling with `rtti` disabled, the following code will not work:
+
+```cpp
+if (auto triangle = dynamic_cast<Triangle *>(shape)) {
+  return 3;
+} else if (auto parallelogram = dynamic_cast<Parallelogram *>(shape)) {
+  return 4;
+}
+```
+
+so you would use the `isa` function instead:
+
+```cpp
+if (isa<Triangle>(shape)) {
+  return 3;
+} else if (isa<Parallelogram>(shape)) {
+  return 4;
+}
+```

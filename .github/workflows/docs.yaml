@@ -24,13 +24,13 @@ jobs:
 
       - name: Cache Cargo registry and build
         uses: actions/cache@v4
+        id: cache-cargo
         with:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
             ~/.cargo/bin
-            target
-          key: ${{ runner.os }}-cargo-mdbook-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ runner.os }}-cargo-mdbook-${{ hashFiles('./.github/workflows/docs.yaml') }}
           restore-keys: |
             ${{ runner.os }}-cargo-mdbook-
 
@@ -41,9 +41,11 @@ jobs:
         run: cd docs && bash ./build-graphs.sh
 
       - name: Install mdbook
+        if: steps.cache-cargo.outputs.cache-hit != 'true'
         run: cargo install mdbook --version 0.4.52 --locked
 
       - name: Install mdbook-alerts
+        if: steps.cache-cargo.outputs.cache-hit != 'true'
         run: cargo install mdbook-alerts --version 0.8.0 --locked
 
       - name: Build docs

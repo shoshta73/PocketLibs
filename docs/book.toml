@@ -9,3 +9,6 @@ preferred-dark-theme = "dark"
 additional-css = ["./tasklist.css"]
 
 [preprocessor.alerts]
+
+[build]
+extra-watch-dirs = ["./src/guides/assets/llvm-style-rtti"]

@@ -26,3 +26,15 @@ Your codebase must have LLVM-style RTTI set up.
    If you're unsure how to do this, please refer to the [LLVM-style RTTI Guide](../guides/LLVM-style-RTTI.md).
 
 4. Include the header file where you need it.
+
+## Example
+
+Bellow is an example code of how to use the `casting.hxx` header file.
+
+> [!NOTE]
+> The code used in example is based on the guide above.
+> See [this guide](../guides/LLVM-style-RTTI.md) for detailed steps of implementation.
+
+```cpp
+{{#include ../../examples/casting_example.cxx}}
+```
