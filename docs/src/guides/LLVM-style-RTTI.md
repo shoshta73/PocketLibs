@@ -9,7 +9,7 @@ The official tutorial can be found [on this page](https://llvm.org/docs/HowToSet
 Let's assume we have a class called `Shape` and two derived classes called
 `Parallelogram` and `Ellipse`. The inheritance tree might look like this:
 
-![inheritance-tree-starting-point.svg](./assets/llvm-style-rtti/inheritance-tree-starting-point.svg)
+![inheritance-tree-starting-point.svg](../assets/guides/llvm-style-rtti/inheritance-tree-starting-point.svg)
 
 So your shape class might look like this:
 
@@ -196,7 +196,7 @@ class Triangle : public Shape {
 
 Finally, your new inheritance tree would look like this:
 
-![inheritance-tree-adding-types.svg](./assets/llvm-style-rtti/inheritance-tree-adding-types-no-subtree.svg)
+![inheritance-tree-adding-types.svg](../assets/guides/llvm-style-rtti/inheritance-tree-adding-types-no-subtree.svg)
 
 ### New inheritance subtree
 
@@ -280,7 +280,7 @@ class Triangle : public Shape {
 
 Finally, your new inheritance tree would look like this:
 
-![inheritance-tree-adding-types.svg](./assets/llvm-style-rtti/inheritance-tree-adding-types-new-subtree.svg)
+![inheritance-tree-adding-types.svg](../assets/guides/llvm-style-rtti/inheritance-tree-adding-types-new-subtree.svg)
 
 #### Exercise
 
@@ -292,7 +292,7 @@ As an exercise, we will be adding the `Rhombus`, `Rectangle`, and `Square`
 classes to the inheritance tree. At the end of this exercise, you should have
 the following inheritance tree:
 
-![inheritance-tree-adding-types.svg](./assets/llvm-style-rtti/inheritance-tree-adding-types-new-subtree-exercise.svg)
+![inheritance-tree-adding-types.svg](../assets/guides/llvm-style-rtti/inheritance-tree-adding-types-new-subtree-exercise.svg)
 
 > [!NOTE]
 
@@ -465,17 +465,65 @@ The `classof` method is a static method that returns `true` if the given value i
 of the specified type, and `false` otherwise. It is not meant to be ussed directly
 by the user, but rather calling it should be done indirectly in the `isa` function.
 
-So the users of your library do not have to worry about the including `casting.h`
-and worry about implementing type checking themselves you should include `casting.h`
+So the users of your library do not have to worry about the including `casting.hxx`
+and worry about implementing type checking themselves you should include `casting.hxx`
 in your header where you have defined the `Shape` class like so:
 
 ```cpp
 #ifndef SHAPE_H
 #define SHAPE_H
 
-#include "casting.h"
+#include "casting.hxx"
 
 /* ... */
 
 #endif  // SHAPE_H
+```
+
+Internal api of `isa` function boils down to something like this:
+
+```cpp
+auto isa<Rectangle>(Shape *shape) {return true;} // if value is of Rectangle type
+auto isa<Rectangle>(Shape *shape) {return false;} // if value is not of Rectangle type
+```
+
+It does that by first checking if shape is base any of base classes of
+`Rectangle` class, and if it is, it returns `true`. If it is not, it checks if
+if Rectangle has a `classof` method, and if it does, it calls it with the shape
+as a parameter, and if checks done by `classof` method returns pass it returns
+`true`, otherwise it returns `false`.
+
+## Using `isa` function
+
+Say you have function called `GetPoints` that returns a number of points based on
+the shape of the given shape.
+
+When compiling with `rtti` enabled, the following code will work:
+
+```cpp
+if (auto triangle = dynamic_cast<Triangle *>(shape)) {
+  return 3;
+} else if (auto rectangle = dynamic_cast<Rectangle *>(shape)) {
+  return 4;
+}
+```
+
+However, when compiling with `rtti` disabled, the following code will not work:
+
+```cpp
+if (auto triangle = dynamic_cast<Triangle *>(shape)) {
+  return 3;
+} else if (auto parallelogram = dynamic_cast<Parallelogram *>(shape)) {
+  return 4;
+}
+```
+
+so you would use the `isa` function instead:
+
+```cpp
+if (isa<Triangle>(shape)) {
+  return 3;
+} else if (isa<Parallelogram>(shape)) {
+  return 4;
+}
 ```

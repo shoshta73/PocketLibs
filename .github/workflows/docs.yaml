@@ -2,7 +2,13 @@ name: docs
 
 on:
   push:
-    paths: ["docs/**"]
+    paths:
+      [
+        "docs/**",
+        "docs/build-graphs.sh",
+        "docs/graphs/**",
+        ".github/workflows/docs.yaml",
+      ]
     branches: ["main"]
   workflow_dispatch:
 
@@ -16,43 +22,107 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build-docs:
+  build-graphs:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
+      - name: Checkout
+        uses: actions/checkout@v5
 
-      - name: Cache Cargo registry and build
-        uses: actions/cache@v4
+      - name: Restore graphs
+        uses: actions/cache/restore@v4
+        id: cache-graphs-restore
+        with:
+          path: docs/src/assets
+          key: ${{ runner.os }}-graphs-${{ hashFiles('./docs/graphs/**', './docs/build_graphs.py') }}
+
+      - name: Install Python
+        if: steps.cache-graphs-restore.outputs.cache-hit != 'true'
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+
+      - name: Install graphviz
+        if: steps.cache-graphs-restore.outputs.cache-hit != 'true'
+        run: sudo apt-get update && sudo apt-get install -y graphviz
+
+      - name: build graphs
+        if: steps.cache-graphs-restore.outputs.cache-hit != 'true'
+        run: python ./docs/build_graphs.py
+
+      - name: Upload graphs artifact
+        uses: actions/upload-artifact@v5
+        with:
+          name: graphs
+          path: docs/src/assets
+
+      - name: Cache graphs
+        id: cache-graphs-save
+        if: steps.cache-graphs-restore.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: docs/src/assets
+          key: ${{ steps.cache-graphs-restore.outputs.cache-primary-key }}
+
+  build-docs:
+    needs: build-graphs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Restore Cargo
+        uses: actions/cache/restore@v4
+        id: cache-cargo-restore
         with:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
             ~/.cargo/bin
-            target
-          key: ${{ runner.os }}-cargo-mdbook-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-cargo-mdbook-
-
-      - name: Install graphviz
-        run: sudo apt-get update && sudo apt-get install -y graphviz
-
-      - name: build graphs
-        run: cd docs && bash ./build-graphs.sh
+            ./docs/book.toml
+          key: ${{ runner.os }}-cargo-${{ hashFiles('./docs/book.web.toml') }}
 
       - name: Install mdbook
-        run: cargo install mdbook --version 0.4.52 --locked
+        if: steps.cache-cargo-restore.outputs.cache-hit != 'true'
+        run: |
+          cargo install mdbook --version 0.4.52
 
       - name: Install mdbook-alerts
-        run: cargo install mdbook-alerts --version 0.8.0 --locked
+        if: steps.cache-cargo-restore.outputs.cache-hit != 'true'
+        run: |
+          cargo install mdbook-alerts --version 0.8.0
+
+      - name: book.toml
+        if: steps.cache-cargo-restore.outputs.cache-hit != 'true'
+        run: cp docs/book.web.toml docs/book.toml
+
+      - name: Retrive graphs
+        uses: actions/download-artifact@v6
+        with:
+          name: graphs
+          path: docs/src/assets
 
       - name: Build docs
         run: cd docs && mdbook build
 
-      - name: Upload artifact
+      - name: Upload pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: docs/book
+
+      - name: Cache Cargo
+        id: cache-cargo-save
+        if: steps.cache-cargo-restore.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            ~/.cargo/bin
+            ./docs/book.toml
+          key: ${{ steps.cache-cargo-restore.outputs.cache-primary-key }}
 
   deploy-docs:
     needs: build-docs
