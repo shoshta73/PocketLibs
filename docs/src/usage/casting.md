@@ -36,5 +36,5 @@ Bellow is an example code of how to use the `casting.hxx` header file.
 > See [this guide](../guides/LLVM-style-RTTI.md) for detailed steps of implementation.
 
 ```cpp
-{{#include ../../examples/casting_example.cxx}}
+{{#include ../../../examples/casting_example.cxx}}
 ```

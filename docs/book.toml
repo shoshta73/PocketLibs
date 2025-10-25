@@ -7,6 +7,9 @@ title = "PocketLibs Documentation"
 [output.html]
 preferred-dark-theme = "dark"
 additional-css = ["./tasklist.css"]
+enable = true
+
+[output.pdf]
 
 [preprocessor.alerts]
 
