@@ -54,6 +54,27 @@ auto isa_impl(const From &pVal) -> bool {
     }
 }
 
+template <typename T>
+struct is_optional : std::false_type {};
+template <typename U>
+struct is_optional<std::optional<U>> : std::true_type {};
+template <typename T>
+inline constexpr bool is_optional_v = is_optional<T>::value;
+
+template <typename T>
+struct is_shared_ptr : std::false_type {};
+template <typename U>
+struct is_shared_ptr<std::shared_ptr<U>> : std::true_type {};
+template <typename T>
+inline constexpr bool is_shared_ptr_v = is_shared_ptr<T>::value;
+
+template <typename T>
+struct is_unique_ptr : std::false_type {};
+template <typename U>
+struct is_unique_ptr<std::unique_ptr<U>> : std::true_type {};
+template <typename T>
+inline constexpr bool is_unique_ptr_v = is_unique_ptr<T>::value;
+
 }  // namespace detail
 
 /**
@@ -66,7 +87,8 @@ auto isa_impl(const From &pVal) -> bool {
  * @return True if the value is of any of the specified types, false otherwise.
  */
 template <typename... To, typename From>
-    requires((!std::is_pointer_v<From>))
+    requires(!std::is_pointer_v<From> && !detail::is_optional_v<From> && !detail::is_shared_ptr_v<From> &&
+             !detail::is_unique_ptr_v<From>)
 [[nodiscard]] auto isa(const From &pVal) -> bool {
     return (detail::isa_impl<To>(pVal) || ...);
 }
@@ -156,7 +178,8 @@ template <typename... To, typename From>
  * @return The casted value.
  */
 template <typename To, typename From>
-    requires(!std::is_pointer_v<From>)
+    requires(!std::is_pointer_v<From> && !detail::is_optional_v<From> && !detail::is_shared_ptr_v<From> &&
+             !detail::is_unique_ptr_v<From>)
 auto cast(From &pVal) -> To & {
     assert(isa<To>(pVal) && "cast<> argument of incompatible type!");
     return static_cast<To &>(pVal);
@@ -172,6 +195,8 @@ auto cast(From &pVal) -> To & {
  * @return The casted const value.
  */
 template <typename To, typename From>
+    requires(!std::is_pointer_v<From> && !detail::is_optional_v<From> && !detail::is_shared_ptr_v<From> &&
+             !detail::is_unique_ptr_v<From>)
 auto cast(const From &pVal) -> const To & {
     assert(isa<To>(pVal) && "cast<> argument of incompatible type!");
     return static_cast<const To &>(pVal);
@@ -250,10 +275,10 @@ auto cast(const std::shared_ptr<From> &pVal) -> std::shared_ptr<To> {
  * @return The casted optional.
  */
 template <typename To, typename From>
-auto cast(const std::optional<From> &pVal) -> To {
-    assert(pVal.has_value() && "cast<> used on empty optional");
-    assert(isa<To>(pVal) && "cast<> argument of incompatible type!");
-    return cast<To>(*pVal);
+auto cast(const std::optional<From> &pVal) -> std::optional<To> {
+    if (!pVal.has_value()) return std::nullopt;
+    assert(isa<To>(*pVal) && "cast<> argument of incompatible type!");
+    return std::optional<To>(cast<To>(*pVal));
 }
 
 /**
@@ -266,9 +291,10 @@ auto cast(const std::optional<From> &pVal) -> To {
  * @return The casted value, or nullptr if the cast fails.
  */
 template <typename To, typename From>
-    requires(!std::is_pointer_v<From>)
+    requires(!std::is_pointer_v<From> && !detail::is_optional_v<From> && !detail::is_shared_ptr_v<From> &&
+             !detail::is_unique_ptr_v<From>)
 [[nodiscard]] auto dyn_cast(From &pVal) -> To * {
-    return isa<To>(pVal) ? &cast<To>(pVal) : nullptr;
+    return isa<To>(pVal) ? cast<To>(&pVal) : nullptr;
 }
 
 /**
@@ -281,9 +307,10 @@ template <typename To, typename From>
  * @return The casted const value, or nullptr if the cast fails.
  */
 template <typename To, typename From>
-    requires(!std::is_pointer_v<From>)
+    requires(!std::is_pointer_v<From> && !detail::is_optional_v<From> && !detail::is_shared_ptr_v<From> &&
+             !detail::is_unique_ptr_v<From>)
 [[nodiscard]] auto dyn_cast(const From &pVal) -> const To * {
-    return isa<To>(pVal) ? &cast<To>(pVal) : nullptr;
+    return isa<To>(pVal) ? cast<To>(&pVal) : nullptr;
 }
 
 /**
@@ -324,7 +351,7 @@ template <typename To, typename From>
  * @return The casted unique pointer, or nullptr if the cast fails.
  */
 template <typename To, typename From>
-[[nodiscard]] auto dyn_cast(std::unique_ptr<From> &&pVal) -> std::unique_ptr<To> * {
+[[nodiscard]] auto dyn_cast(std::unique_ptr<From> &&pVal) -> std::unique_ptr<To> {
     if (!pVal || !isa<To>(pVal)) {
         return nullptr;
     }
