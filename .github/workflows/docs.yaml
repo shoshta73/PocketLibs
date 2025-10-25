@@ -32,7 +32,16 @@ jobs:
             ~/.cargo/bin
           key: ${{ runner.os }}-cargo-mdbook-${{ hashFiles('./.github/workflows/docs.yaml') }}
           restore-keys: |
-            ${{ runner.os }}-cargo-mdbook-
+            ${{ runner.os }}-cargo-mdbook-${{ hashFiles('./.github/workflows/docs.yaml') }}
+
+      - name: Cache book.toml web
+        uses: actions/cache@v4
+        id: cache-book-toml-web
+        with:
+          path: ./docs/book.toml
+          key: ${{ runner.os }}-book-toml-web-${{ hashFiles('./.github/workflows/docs.yaml', './docs/book.web.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-book-toml-web-${{ hashFiles('./.github/workflows/docs.yaml', './docs/book.web.toml') }}
 
       - name: Install graphviz
         run: sudo apt-get update && sudo apt-get install -y graphviz
@@ -42,11 +51,28 @@ jobs:
 
       - name: Install mdbook
         if: steps.cache-cargo.outputs.cache-hit != 'true'
-        run: cargo install mdbook --version 0.4.52 --locked
+        run: |
+          if ! command -v mdbook &> /dev/null; then
+            cargo install mdbook --version 0.4.52
+          fi
 
       - name: Install mdbook-alerts
         if: steps.cache-cargo.outputs.cache-hit != 'true'
-        run: cargo install mdbook-alerts --version 0.8.0 --locked
+        run: |
+          if ! command -v mdbook-alerts &> /dev/null; then
+            cargo install mdbook-alerts --version 0.8.0
+          fi
+
+      - name: Install mdbook-pdf
+        if: steps.cache-cargo.outputs.cache-hit != 'true'
+        run: |
+          if ! command -v mdbook-pdf &> /dev/null; then
+            cargo install mdbook-pdf --version 0.1.11
+          fi
+
+      - name: book.toml
+        if: steps.cache-book-toml-web.outputs.cache-hit != 'true'
+        run: cp docs/book.web.pdf docs/book.toml
 
       - name: Build docs
         run: cd docs && mdbook build
