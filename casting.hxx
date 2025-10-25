@@ -1,5 +1,5 @@
 /**
- * @file casting.h
+ * @file casting.hxx
  * @brief Provides type casting and type checking utilities compatible with LLVM-style RTTI.
  *
  * This header file defines a set of utilities for type casting and type checking
@@ -13,8 +13,8 @@
  * @brief Functions for type casting and type checking.
  */
 
-#ifndef CASTING_H
-#define CASTING_H
+#ifndef CASTING_HXX
+#define CASTING_HXX
 
 #ifndef CASTING_NAMESPACE
 #define CASTING_NAMESPACE
@@ -398,4 +398,4 @@ template <typename To, typename From>
 #undef CASTING_NAMESPACE  // Dont leak this macro outside of this file
 #endif
 
-#endif  // CASTING_H
+#endif  // CASTING_HXX

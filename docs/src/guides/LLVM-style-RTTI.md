@@ -465,15 +465,15 @@ The `classof` method is a static method that returns `true` if the given value i
 of the specified type, and `false` otherwise. It is not meant to be ussed directly
 by the user, but rather calling it should be done indirectly in the `isa` function.
 
-So the users of your library do not have to worry about the including `casting.h`
-and worry about implementing type checking themselves you should include `casting.h`
+So the users of your library do not have to worry about the including `casting.hxx`
+and worry about implementing type checking themselves you should include `casting.hxx`
 in your header where you have defined the `Shape` class like so:
 
 ```cpp
 #ifndef SHAPE_H
 #define SHAPE_H
 
-#include "casting.h"
+#include "casting.hxx"
 
 /* ... */
 

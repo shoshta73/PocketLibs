@@ -10,10 +10,10 @@ Your codebase must have LLVM-style RTTI set up.
 
 ## Usage Instructions
 
-1. Obtain the `casting.h` header file and place it in your compiler's include path.
+1. Obtain the `casting.hxx` header file and place it in your compiler's include path.
 
    ```terminal
-   $ wget https://raw.githubusercontent.com/shoshta73/PocketTools/main/casting.h -O include/casting.h
+   $ wget https://raw.githubusercontent.com/shoshta73/PocketTools/main/casting.hxx -O include/casting.hxx
    ```
 
 2. Define the `CASTING_NAMESPACE` macro in your build system.
