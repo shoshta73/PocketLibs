@@ -4,14 +4,18 @@
 
 - [Overview](./overview.md)
 
-# Usage
+# Getting Started
 
-- [Casting](./usage/casting.md)
+- [LLVM-style RTTI Setup](./guides/LLVM-style-RTTI.md)
 
-# Api Reference
+# Usage Guide
 
-- [Casting](./api/casting.md)
+- [Using the Casting Library](./usage/casting.md)
 
-# Guides
+# Integration Examples
 
-- [LLVM-style RTTI](./guides/LLVM-style-RTTI.md)
+- [Integration Examples](./examples.md)
+
+# API Reference
+
+- [Casting API](./api/casting.md)
