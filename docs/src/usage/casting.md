@@ -5,6 +5,7 @@ For API reference, please refer to the [Casting API Reference](../api/casting.md
 ## Prerequisites
 
 Before using the Casting library, make sure:
+
 - Your code compiles with **C++20 or newer**
 - Your classes use **LLVM-style RTTI** (see [Setup Guide](../guides/LLVM-style-RTTI.md) if you haven't set this up yet)
 
@@ -23,11 +24,13 @@ wget https://raw.githubusercontent.com/shoshta73/PocketTools/main/casting.hxx -O
 Define the `CASTING_NAMESPACE` macro in your build system:
 
 **CMake:**
+
 ```cmake
 target_compile_definitions(my_target PUBLIC CASTING_NAMESPACE=MyNamespace)
 ```
 
 **Compiler flag:**
+
 ```bash
 g++ -DCASTING_NAMESPACE=MyNamespace -std=c++20 main.cpp
 ```
@@ -45,19 +48,11 @@ g++ -DCASTING_NAMESPACE=MyNamespace -std=c++20 main.cpp
 The `isa<T>()` function checks if a value is of a specific type without performing a cast:
 
 ```cpp
-auto GetPoints(const Shape *shape) -> int {
-    if (isa<Triangle>(shape)) {
-        return 3;
-    } else if (isa<Parallelogram>(shape)) {
-        return 4;
-    } else if (isa<Ellipse>(shape)) {
-        return 0;  // Ellipses don't have a fixed number of points
-    }
-    return 0;
-}
+{{#include ../../../integration-example/casting/src/main.cxx:143:153}}
 ```
 
 **Key points:**
+
 - Returns `true` if the object is of type `T` (or derived from `T`)
 - Works with pointers, references, and smart pointers
 - Zero overhead - compiles to simple enum comparisons
@@ -67,17 +62,11 @@ auto GetPoints(const Shape *shape) -> int {
 The `dyn_cast<T>()` function performs a nullable cast - returns `nullptr` if the cast fails:
 
 ```cpp
-std::unique_ptr<Shape> shape = std::make_unique<Rectangle>(5.0, 10.0);
-
-// Safe cast - returns nullptr if shape is not a Rectangle
-if (auto* rectangle = dyn_cast<Rectangle>(shape.get())) {
-    std::println("Rectangle area: {}", rectangle->ComputeArea());
-} else {
-    std::println("Not a rectangle");
-}
+{{#include ../../../integration-example/casting/src/main.cxx:127:140}}
 ```
 
 **When to use `dyn_cast<T>()`:**
+
 - When you want to cast and check in one operation
 - When failure is a valid outcome (you expect some casts to fail)
 - Similar to `dynamic_cast` but works with `-fno-rtti`
@@ -87,12 +76,14 @@ if (auto* rectangle = dyn_cast<Rectangle>(shape.get())) {
 The `cast<T>()` function performs a cast that **must succeed** (undefined behavior if it fails):
 
 ```cpp
-// Only use if you're certain shape is a Rectangle
-auto* rectangle = cast<Rectangle>(shape.get());
-std::println("Rectangle area: {}", rectangle->ComputeArea());
+// Only use if you're certain the value is of the specified type
+// After checking with isa<>, we could use cast<> (which asserts in debug mode)
+auto *binOp = cast<BinaryOp>(expr);
+std::println("Operation: {}", binOp->GetOpString());
 ```
 
 **When to use `cast<T>()`:**
+
 - When you've already verified the type with `isa<T>()`
 - In debug builds, this may include assertions
 - More efficient than `dyn_cast<T>()` (no null checks)
@@ -105,47 +96,41 @@ std::println("Rectangle area: {}", rectangle->ComputeArea());
 The casting functions work seamlessly with smart pointers:
 
 ```cpp
-std::unique_ptr<Shape> shape = std::make_unique<Square>(5.0);
-
-// Check type
-if (isa<Square>(shape)) {
-    std::println("It's a square!");
-}
-
-// Safe cast with raw pointer
-if (auto* square = dyn_cast<Square>(shape.get())) {
-    std::println("Square area: {}", square->ComputeArea());
-}
+{{#include ../../../integration-example/casting/src/main.cxx:159:167}}
 ```
 
-## Practical Example: Shape Hierarchy
+## Putting It All Together
 
-Here's how the casting functions work together in a real scenario:
+Here's how the three casting functions work together in practice:
 
 ```cpp
-int main() {
-    // Create shapes and store in base class pointer
-    std::unique_ptr<Shape> shape = std::make_unique<Rectangle>(5.0, 10.0);
+void ProcessExpression(const Expr *expr) {
+    // 1. Check the type with isa<>
+    if (isa<Literal>(expr)) {
+        // 2. Safe cast with dyn_cast<> - handles the check + cast
+        if (auto *lit = dyn_cast<Literal>(expr)) {
+            std::println("Found literal: {}", lit->GetValue());
+        }
+    } else if (isa<BinaryOp>(expr)) {
+        // 3. Assert cast with cast<> - we already verified with isa<>
+        auto *binOp = cast<BinaryOp>(expr);
+        std::println("Binary operation: {}", binOp->GetOpString());
 
-    // Type checking
-    std::println("Number of points: {}", GetPoints(shape.get()));
-
-    // Safe casting
-    if (auto* rectangle = dyn_cast<Rectangle>(shape.get())) {
-        std::println("Rectangle area: {}", rectangle->ComputeArea());
+        // Process children recursively
+        ProcessExpression(binOp->GetLeft());
+        ProcessExpression(binOp->GetRight());
     }
-
-    // Works with derived types too
-    shape = std::make_unique<Square>(5.0);
-
-    // Square is a Rectangle, so this succeeds
-    if (isa<Rectangle>(shape)) {
-        std::println("Square is also a Rectangle!");
-    }
-
-    return 0;
 }
 ```
+
+**Best practices:**
+- Use `isa<T>()` when you only need to check the type
+- Use `dyn_cast<T>()` when you need both check and cast in one operation
+- Use `cast<T>()` only after verifying the type with `isa<T>()`, for better performance
+
+## Complete Working Example
+
+For a full, working example showing LLVM-style RTTI setup and real-world usage, see the [expression evaluator integration example](https://github.com/shoshta73/PocketLibs/tree/main/integration-example/casting).
 
 ## Understanding Type Hierarchies
 
@@ -165,15 +150,12 @@ Shape
 ```
 
 A `Square*` will pass these checks:
+
 - `isa<Square>(square)` → `true`
 - `isa<Rectangle>(square)` → `true` (Square inherits from Rectangle)
 - `isa<Parallelogram>(square)` → `true` (Rectangle inherits from Parallelogram)
 - `isa<Shape>(square)` → `true` (all shapes inherit from Shape)
 - `isa<Triangle>(square)` → `false` (not related to Triangle)
-
-## Complete Example
-
-For a comprehensive example showing the full shape hierarchy with all casting functions, see the [complete example code](https://github.com/shoshta73/PocketLibs/blob/main/examples/casting_example.cxx).
 
 ## Next Steps
 

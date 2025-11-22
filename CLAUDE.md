@@ -136,6 +136,42 @@ The documentation uses mdBook with custom preprocessing:
 - GitHub Actions workflow builds and deploys to GitHub Pages
 - Includes custom CSS for task lists and dark theme support
 
+#### Documentation Best Practices
+
+When writing or updating documentation:
+
+**Use `{{#include}}` syntax wherever possible:**
+- Include code snippets directly from source files using mdBook's `{{#include file:start:end}}` syntax
+- This ensures documentation stays in sync with actual code
+- Prefer including from integration examples over hardcoding examples
+- Use line ranges to include specific sections: `{{#include ../../../integration-example/casting/src/main.cxx:12:30}}`
+
+**Benefits:**
+- **Accuracy**: Documentation always reflects actual working code
+- **Maintainability**: Code changes automatically update documentation
+- **Validation**: Included code compiles and runs in CI, preventing outdated examples
+- **Single source of truth**: Integration examples serve as both tests and documentation
+
+**Examples:**
+```markdown
+<!-- Good: Include from integration example -->
+\`\`\`cpp
+{{#include ../../../integration-example/casting/src/main.cxx:91:107}}
+\`\`\`
+
+<!-- Avoid: Hardcoded code that can drift out of sync -->
+\`\`\`cpp
+class Example {
+    // This might become outdated...
+};
+\`\`\`
+```
+
+**When NOT to use `{{#include}}`:**
+- Small, illustrative pseudo-code snippets that don't need to compile
+- Code that would require extensive context to understand
+- Tutorial sections teaching concepts step-by-step with incremental changes
+
 ### Integration Examples
 
 Each library has practical integration examples in `integration-example/`:
