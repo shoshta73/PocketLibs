@@ -1,0 +1,15 @@
+[book]
+authors = ["Borna Šoštarić"]
+language = "en"
+src = "src"
+title = "PocketLibs Documentation"
+
+[output.html]
+preferred-dark-theme = "dark"
+additional-css = ["./tasklist.css"]
+enable = true
+
+[preprocessor.alerts]
+
+[build]
+extra-watch-dirs = ["./src/assets/graphs"]
